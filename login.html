@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Memories</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="auth-body">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1 class="logo">✨ Memories</h1>
+                <p class="auth-subtitle">Welcome back! Sign in to share your moments</p>
+            </div>
+            
+            <form class="auth-form" id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Enter your username" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" class="form-input" required>
+                </div>
+
+                <div id="error" class="error-message hidden"></div>
+
+                <button type="submit" class="btn btn-primary btn-full" id="loginBtn">
+                    <span class="btn-text">Sign In</span>
+                    <span class="btn-loading hidden">Signing in...</span>
+                </button>
+            </form>
+
+            <div class="auth-divider">
+                <span>or</span>
+            </div>
+
+            <div class="auth-links">
+                <p>Don't have an account? <a href="register.html" class="auth-link">Create one here</a></p>
+                <p><a href="index.html" class="auth-link">← Back to Memories</a></p>
+            </div>
+            
+            <div class="demo-section">
+                <h4>🎭 Try Demo Accounts</h4>
+                <div class="demo-accounts">
+                    <div class="demo-account" onclick="fillDemo('admin', 'admin123')">
+                        <strong>👑 Admin Account</strong>
+                        <small>Full access + user management</small>
+                    </div>
+                    <div class="demo-account" onclick="fillDemo('member', 'member123')">
+                        <strong>👤 Member Account</strong>
+                        <small>Can post memories</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/auth.js"></script>
+    <script>
+        function fillDemo(username, password) {
+            document.getElementById('username').value = username;
+            document.getElementById('password').value = password;
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            
+            const errorEl = document.getElementById('error');
+            const btnEl = document.getElementById('loginBtn');
+            const btnText = btnEl.querySelector('.btn-text');
+            const btnLoading = btnEl.querySelector('.btn-loading');
+            
+            // Clear previous errors
+            errorEl.classList.add('hidden');
+            btnEl.disabled = true;
+            btnText.classList.add('hidden');
+            btnLoading.classList.remove('hidden');
+            
+            try {
+                // Simulate network delay
+                await new Promise(resolve => setTimeout(resolve, 800));
+                
+                // Get users from localStorage
+                const users = JSON.parse(localStorage.getItem('demo_users') || '[]');
+                console.log('Available users:', users); // Debug log
+                
+                // Find user with matching credentials
+                const user = users.find(u => {
+                    const storedPassword = u.password.startsWith('btoa:') ? 
+                        atob(u.password.substring(5)) : u.password;
+                    return u.username === username && storedPassword === password;
+                });
+                
+                console.log('Login attempt:', { username, password }); // Debug log
+                console.log('Found user:', user); // Debug log
+                
+                if (!user) {
+                    throw new Error('Invalid username or password. Try the demo accounts above!');
+                }
+                
+                // Create session
+                const token = `token_${user.id}_${Date.now()}`;
+                localStorage.setItem('auth_token', token);
+                localStorage.setItem('current_user', JSON.stringify(user));
+                
+                // Redirect to home
+                showToast('Login successful! Welcome back!', 'success');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+                
+            } catch (error) {
+                errorEl.textContent = error.message;
+                errorEl.classList.remove('hidden');
+                
+                btnEl.disabled = false;
+                btnText.classList.remove('hidden');
+                btnLoading.classList.add('hidden');
+            }
+        });
+
+        function showToast(message, type) {
+            // Simple toast notification
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#4CAF50' : '#f44336'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                z-index: 10000;
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Check if already logged in
+        if (localStorage.getItem('auth_token')) {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

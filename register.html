@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Memories - Create Account</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="auth-body">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1 class="logo">✨ Memories</h1>
+                <p class="auth-subtitle">Join our community and start sharing beautiful moments</p>
+            </div>
+            
+            <form class="auth-form" id="registerForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Choose a unique username" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="your@email.com" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Create a secure password" class="form-input" required>
+                </div>
+
+                <div id="error" class="error-message hidden"></div>
+                <div id="success" class="success-message hidden"></div>
+
+                <button type="submit" class="btn btn-primary btn-full" id="registerBtn">
+                    <span class="btn-text">Create Account</span>
+                    <span class="btn-loading hidden">Creating account...</span>
+                </button>
+            </form>
+
+            <div class="auth-divider">
+                <span>or</span>
+            </div>
+
+            <div class="auth-links">
+                <p>Already have an account? <a href="login.html" class="auth-link">Sign in here</a></p>
+                <p><a href="index.html" class="auth-link">← Back to Memories</a></p>
+            </div>
+            
+            <div class="info-card">
+                <h4>ℹ️ Getting Started</h4>
+                <p>After creating your account, you'll need admin approval to start posting memories. This helps maintain our community quality!</p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/auth.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
+            const errorEl = document.getElementById('error');
+            const successEl = document.getElementById('success');
+            const btnEl = document.getElementById('registerBtn');
+            const btnText = btnEl.querySelector('.btn-text');
+            const btnLoading = btnEl.querySelector('.btn-loading');
+            
+            // Clear messages
+            errorEl.classList.add('hidden');
+            successEl.classList.add('hidden');
+            btnEl.disabled = true;
+            btnText.classList.add('hidden');
+            btnLoading.classList.remove('hidden');
+            
+            try {
+                // Simulate network delay
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Validation
+                if (username.length < 3) {
+                    throw new Error('Username must be at least 3 characters long');
+                }
+                if (password.length < 6) {
+                    throw new Error('Password must be at least 6 characters long');
+                }
+                
+                // Check if user exists
+                const users = JSON.parse(localStorage.getItem('demo_users') || '[]');
+                if (users.find(u => u.username === username)) {
+                    throw new Error('Username already taken. Please choose another.');
+                }
+                if (users.find(u => u.email === email)) {
+                    throw new Error('Email already registered. Try signing in instead.');
+                }
+                
+                // Create new user
+                const newUser = {
+                    id: Date.now(),
+                    username,
+                    email,
+                    password: `btoa:${btoa(password)}`, // Simple encoding for demo
+                    role: 'member',
+                    can_post: false,
+                    created_at: new Date().toISOString()
+                };
+                
+                users.push(newUser);
+                localStorage.setItem('demo_users', JSON.stringify(users));
+                
+                // Show success
+                successEl.textContent = 'Account created successfully! Redirecting to sign in...';
+                successEl.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                
+            } catch (error) {
+                errorEl.textContent = error.message;
+                errorEl.classList.remove('hidden');
+                
+                btnEl.disabled = false;
+                btnText.classList.remove('hidden');
+                btnLoading.classList.add('hidden');
+            }
+        });
+
+        // Check if already logged in
+        if (localStorage.getItem('auth_token')) {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

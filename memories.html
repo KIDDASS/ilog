@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memories - Share Your Moments</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <h1 class="logo">Memories</h1>
+            <div class="nav-links">
+                <span id="adminLink" class="hidden"><a href="admin.html">Admin</a></span>
+                <span id="userInfo">Hello, Guest</span>
+                <button id="logoutBtn" class="nav-btn hidden">Logout</button>
+                <a href="login.html" id="loginLink" class="nav-btn">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <!-- Post Form (only shown to users with permission) -->
+        <form class="upload-form hidden" id="postForm">
+            <h3>Share a Memory</h3>
+            
+            <div class="form-group">
+                <input type="text" id="memoryTitle" placeholder="Memory title" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+                <textarea id="memoryDescription" placeholder="Description (optional)" class="form-input" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+                <input type="url" id="memoryImage" placeholder="Image URL" class="form-input" required>
+                <small>Tip: Upload to imgur.com or use any image URL</small>
+            </div>
+
+            <div id="postError" class="error hidden"></div>
+
+            <button type="submit" class="btn btn-primary" id="postBtn">
+                Share Memory
+            </button>
+        </form>
+
+        <!-- No Permission Message -->
+        <div class="no-permission hidden" id="noPermission">
+            <div class="upload-form" style="text-align: center; color: #737373;">
+                <p>You don't have permission to post memories yet.</p>
+                <p>Contact an admin to get posting permissions.</p>
+            </div>
+        </div>
+
+        <!-- Memories Feed -->
+        <div id="memoriesContainer">
+            <div class="loading-memories">Loading memories...</div>
+        </div>
+    </div>
+    
+    <script src="js/utils.js"></script>
+    <script src="js/memories.js"></script>
+</body>
+</html>
